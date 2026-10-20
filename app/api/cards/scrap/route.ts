@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   };
 
   const rarity = body.card?.rarity ?? 'COMMON';
-  const value = scrapValue(rarity);
+  const value = scrapValue(rarity as keyof typeof rarityRewardValues);
 
   return NextResponse.json({
     ok: true,

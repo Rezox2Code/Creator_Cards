@@ -1,48 +1,29 @@
-export function NetworkDashboard() {
-  const network = {
-    name: 'Viral Syndicate',
-    level: 12,
-    xp: 840,
-    members: 18,
-    quests: [
-      { step: 1, target: 80, current: 80, label: 'Collect 80 creator cards' },
-      { step: 2, target: 150, current: 120, label: 'Reach 150 network XP' },
-      { step: 3, target: 10, current: 6, label: 'Open 10 packs' }
-    ]
-  };
+export function AuctionHouse() {
+  const auctions = [
+    { id: 'a1', item: 'MrBeast - Epic', price: 1800, endsIn: '2h 12m', bidders: 14 },
+    { id: 'a2', item: 'PewDiePie - Legendary', price: 4200, endsIn: '5h 00m', bidders: 9 },
+    { id: 'a3', item: 'DanTDM - Uncommon', price: 680, endsIn: '16m', bidders: 4 }
+  ];
 
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
       <div className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Network</p>
-          <h2 className="text-2xl font-bold text-white">{network.name}</h2>
-        </div>
-        <span className="rounded-full border border-violet-500/40 bg-violet-500/10 px-3 py-1 text-sm text-violet-200">Lvl {network.level}</span>
-      </div>
-
-      <div className="mb-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl bg-slate-800 p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Members</div>
-          <div className="mt-2 text-3xl font-black text-cyan-400">{network.members}</div>
-        </div>
-        <div className="rounded-2xl bg-slate-800 p-4">
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-400">XP</div>
-          <div className="mt-2 text-3xl font-black text-emerald-400">{network.xp}</div>
-        </div>
+        <h2 className="text-2xl font-bold text-white">Auction House</h2>
+        <button className="rounded-full border border-slate-700 px-3 py-1.5 text-sm text-slate-200">Create Listing</button>
       </div>
 
       <div className="space-y-3">
-        {network.quests.map((quest) => (
-          <div key={quest.step} className="rounded-2xl border border-slate-700 bg-slate-800 p-3">
-            <div className="mb-2 flex items-center justify-between text-sm text-slate-300">
-              <span>Quest {quest.step}</span>
-              <span>{quest.current}/{quest.target}</span>
+        {auctions.map((auction) => (
+          <div key={auction.id} className="rounded-2xl border border-slate-700 bg-slate-800 p-4">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-slate-100">{auction.item}</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-slate-400">{auction.endsIn}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-slate-700">
-              <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-violet-500" style={{ width: `${Math.min(100, (quest.current / quest.target) * 100)}%` }} />
+            <div className="mt-3 flex items-center justify-between text-sm text-slate-300">
+              <span>Current bid</span>
+              <span className="text-lg font-bold text-amber-400">{auction.price}</span>
             </div>
-            <div className="mt-2 text-xs text-slate-400">{quest.label}</div>
+            <div className="mt-1 text-xs text-slate-400">{auction.bidders} bidders active</div>
           </div>
         ))}
       </div>

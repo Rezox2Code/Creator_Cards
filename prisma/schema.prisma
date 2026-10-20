@@ -22,19 +22,19 @@ enum NetworkRole {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  username      String   @unique
-  coins         Int      @default(0)
-  isSubscriber Boolean  @default(false) @map("is_subscriber")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id               String   @id @default(cuid())
+  email            String   @unique
+  username         String   @unique
+  coins            Int      @default(0)
+  isSubscriber     Boolean  @default(false) @map("is_subscriber")
+  createdAt        DateTime @default(now()) @map("created_at")
 
-  cards                 UserCard[]
-  auctions              Auction[]      @relation("Seller")
-  bids                 Auction[]      @relation("HighestBidder")
-  networkMemberships    NetworkMember[]
-  referralsAsReferrer   Referral[]      @relation("Referrer")
-  referralsAsReferred   Referral[]      @relation("Referred")
+  cards             UserCard[]
+  auctionsSold      Auction[]      @relation("Seller")
+  auctionsBidOn     Auction[]      @relation("HighestBidder")
+  memberships       NetworkMember[]
+  referralsSent    Referral[]     @relation("Referrer")
+  referralsReceived Referral[]    @relation("Referred")
 
   @@map("users")
 }
@@ -65,16 +65,16 @@ model CardModel {
 }
 
 model UserCard {
-  id           String   @id @default(cuid())
-  userId       String   @map("user_id")
-  cardModelId  String   @map("card_model_id")
-  customTag    String?  @map("custom_tag")
-  obtainedAt   DateTime @default(now()) @map("obtained_at")
-  isForSale    Boolean  @default(false) @map("is_for_sale")
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  cardModelId String   @map("card_model_id")
+  customTag   String?  @map("custom_tag")
+  obtainedAt  DateTime @default(now()) @map("obtained_at")
+  isForSale   Boolean  @default(false) @map("is_for_sale")
 
-  user      User      @relation(fields: [userId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
   cardModel CardModel @relation(fields: [cardModelId], references: [id])
-  auction   Auction?
+  auction Auction?
 
   @@map("user_cards")
 }
@@ -89,9 +89,9 @@ model Auction {
   endsAt         DateTime @map("ends_at")
   isClosed       Boolean  @default(false) @map("is_closed")
 
-  userCard       UserCard @relation(fields: [userCardId], references: [id])
-  seller         User     @relation("Seller", fields: [sellerId], references: [id])
-  highestBidder  User?    @relation("HighestBidder", fields: [highestBidderId], references: [id])
+  userCard      UserCard @relation(fields: [userCardId], references: [id])
+  seller        User     @relation("Seller", fields: [sellerId], references: [id])
+  highestBidder User?    @relation("HighestBidder", fields: [highestBidderId], references: [id])
 
   @@map("auctions")
 }
@@ -105,8 +105,8 @@ model Network {
   leaderId    String   @map("leader_id")
   createdAt   DateTime @default(now()) @map("created_at")
 
-  members        NetworkMember[]
-  quests         NetworkQuest[]
+  members NetworkMember[]
+  quests  NetworkQuest[]
 
   @@map("networks")
 }
@@ -125,12 +125,12 @@ model NetworkMember {
 }
 
 model NetworkQuest {
-  id          String  @id @default(cuid())
-  networkId   String  @map("network_id")
-  step        Int     @default(1)
-  targetValue Int     @map("target_value")
-  currentValue Int    @default(0) @map("current_value")
-  isCompleted Boolean @default(false) @map("is_completed")
+  id           String  @id @default(cuid())
+  networkId    String  @map("network_id")
+  step         Int     @default(1)
+  targetValue  Int     @map("target_value")
+  currentValue Int     @default(0) @map("current_value")
+  isCompleted  Boolean @default(false) @map("is_completed")
 
   network Network @relation(fields: [networkId], references: [id])
 
@@ -138,13 +138,13 @@ model NetworkQuest {
 }
 
 model Referral {
-  id            String   @id @default(cuid())
-  referrerId    String   @map("referrer_id")
-  referredId    String?  @map("referred_id")
+  id              String   @id @default(cuid())
+  referrerId      String   @map("referrer_id")
+  referredId      String?  @map("referred_id")
   periodStartDate DateTime @map("period_start_date")
-  createdAt     DateTime @default(now()) @map("created_at")
+  createdAt       DateTime @default(now()) @map("created_at")
 
-  referrer User @relation("Referrer", fields: [referrerId], references: [id])
+  referrer User  @relation("Referrer", fields: [referrerId], references: [id])
   referred User? @relation("Referred", fields: [referredId], references: [id])
 
   @@map("referrals")
