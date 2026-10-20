@@ -1,25 +1,15 @@
-import { NextResponse } from 'next/server';
-import { chunkArray, creatorPool, determineMaxRarity } from '@/lib/game';
+import type { Metadata } from 'next';
+import './globals.css';
 
-export async function GET() {
-  const creators = creatorPool.map((creator) => ({
-    id: creator.id,
-    name: creator.name,
-    subscriberCount: creator.subscribers,
-    maxRarity: determineMaxRarity(creator.subscribers)
-  }));
+export const metadata: Metadata = {
+  title: 'Creator Cards Tycoon',
+  description: 'A trading card game built around YouTube creators.'
+};
 
-  const batches = chunkArray(creators, 50);
-
-  return NextResponse.json({
-    ok: true,
-    processed: creators.length,
-    batches: batches.length,
-    batchSize: 50,
-    creators
-  });
-}
-
-export async function POST() {
-  return GET();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
 }
