@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  EPIC
+  LEGENDARY
+  ULTIMATE
+}
+
+enum NetworkRole {
+  LEADER
+  OFFICER
+  MEMBER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  coins         Int      @default(0)
+  isSubscriber Boolean  @default(false) @map("is_subscriber")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  cards                 UserCard[]
+  auctions              Auction[]      @relation("Seller")
+  bids                 Auction[]      @relation("HighestBidder")
+  networkMemberships    NetworkMember[]
+  referralsAsReferrer   Referral[]      @relation("Referrer")
+  referralsAsReferred   Referral[]      @relation("Referred")
+
+  @@map("users")
+}
+
+model Creator {
+  id               String   @id @default(cuid())
+  youtubeChannelId String   @unique @map("youtube_channel_id")
+  name             String
+  avatarUrl        String?  @map("avatar_url")
+  subscriberCount  Int      @map("subscriber_count")
+  maxRarity        Rarity   @map("max_rarity")
+  lastUpdatedAt    DateTime @default(now()) @map("last_updated_at")
+
+  cardModels CardModel[]
+
+  @@map("creators")
+}
+
+model CardModel {
+  id        String   @id @default(cuid())
+  creatorId String   @map("creator_id")
+  rarity    Rarity
+
+  creator   Creator   @relation(fields: [creatorId], references: [id])
+  userCards UserCard[]
+
+  @@map("card_models")
+}
+
+model UserCard {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  cardModelId  String   @map("card_model_id")
+  customTag    String?  @map("custom_tag")
+  obtainedAt   DateTime @default(now()) @map("obtained_at")
+  isForSale    Boolean  @default(false) @map("is_for_sale")
+
+  user      User      @relation(fields: [userId], references: [id])
+  cardModel CardModel @relation(fields: [cardModelId], references: [id])
+  auction   Auction?
+
+  @@map("user_cards")
+}
+
+model Auction {
+  id             String   @id @default(cuid())
+  userCardId     String   @unique @map("user_card_id")
+  sellerId       String   @map("seller_id")
+  startingPrice  Int      @map("starting_price")
+  currentBid     Int      @map("current_bid")
+  highestBidderId String? @map("highest_bidder_id")
+  endsAt         DateTime @map("ends_at")
+  isClosed       Boolean  @default(false) @map("is_closed")
+
+  userCard       UserCard @relation(fields: [userCardId], references: [id])
+  seller         User     @relation("Seller", fields: [sellerId], references: [id])
+  highestBidder  User?    @relation("HighestBidder", fields: [highestBidderId], references: [id])
+
+  @@map("auctions")
+}
+
+model Network {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  level       Int      @default(1)
+  xp          Int      @default(0)
+  leaderId    String   @map("leader_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  members        NetworkMember[]
+  quests         NetworkQuest[]
+
+  @@map("networks")
+}
+
+model NetworkMember {
+  networkId String       @map("network_id")
+  userId    String       @map("user_id")
+  role      NetworkRole
+  joinedAt  DateTime     @default(now()) @map("joined_at")
+
+  network Network @relation(fields: [networkId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@id([networkId, userId])
+  @@map("network_members")
+}
+
+model NetworkQuest {
+  id          String  @id @default(cuid())
+  networkId   String  @map("network_id")
+  step        Int     @default(1)
+  targetValue Int     @map("target_value")
+  currentValue Int    @default(0) @map("current_value")
+  isCompleted Boolean @default(false) @map("is_completed")
+
+  network Network @relation(fields: [networkId], references: [id])
+
+  @@map("network_quests")
+}
+
+model Referral {
+  id            String   @id @default(cuid())
+  referrerId    String   @map("referrer_id")
+  referredId    String?  @map("referred_id")
+  periodStartDate DateTime @map("period_start_date")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  referrer User @relation("Referrer", fields: [referrerId], references: [id])
+  referred User? @relation("Referred", fields: [referredId], references: [id])
+
+  @@map("referrals")
+}
